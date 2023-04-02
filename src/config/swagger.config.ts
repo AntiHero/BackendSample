@@ -13,5 +13,5 @@ export const setupSwagger = async (app: INestApplication): Promise<void> => {
     options,
   );
 
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 };
