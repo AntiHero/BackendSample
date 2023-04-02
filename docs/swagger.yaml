@@ -1,0 +1,9 @@
+openapi: 3.0.0
+info:
+  title: INCTAGRAM
+  description: API documentation for INCTAGRAM App
+  version: '1.0'
+paths:
+  $ref: 'swagger.auth.yaml#/paths'
+components:
+  $ref: 'swagger.auth.yaml#/components'

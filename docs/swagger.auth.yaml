@@ -1,0 +1,319 @@
+# Auth
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Logs in and returns access token in body and refresh token in cookie
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: >
+            Success.
+            The refresh token is returned in a cookie named `refreshToken`. You need to include this cookie in subsequent requests.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: 'refreshToken=$jwt; Path=/; HttpOnly'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Bad Request. Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Not Authorized. Wrong email or password
+  /auth/registration:
+    post:
+      tags:
+        - Auth
+      summary: Registers the user
+      operationId: registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationInput'
+      responses:
+        '204':
+          description: Success. Registration accepted. An email with a confirmation code has been sent to the user's email
+        '400':
+          description: Bad Request. Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: Conflict. Account with such email already exists
+  /auth/confirm-registration:
+    post:
+      tags:
+        - Auth
+      summary: Confirms account registration
+      operationId: confirm-registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmRegistrationInput'
+      responses:
+        '204':
+          description: No Conent. Confirmation code has been accepted. Email verified
+        '400':
+          description: Bad Request. Confirmation code is incorrect or has been expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+  /auth/refresh-token:
+    post:
+      tags:
+        - Auth
+      summary: Generates new pair of access and refresh token
+      operationId: refresh-token
+      parameters:
+        - $ref: '#/components/parameters/RefreshTokenCookie'
+      responses:
+        '200':
+          description: Returns JWT acces token in body and refreshToken in cookie
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: 'refreshToken=$token; Path=/; HttpOnly'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '401':
+          description: The JWT refreshToken inside cookie is missing, expired or incorrect
+  /auth/resend-registration-confirmation:
+    post:
+      tags:
+        - Auth
+      summary: Resends email for account registraition confrimation
+      operationId: resend-confirmation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendConfirmationInput'
+      responses:
+        '204':
+          description: No Content. Confirmation email has been sent
+        '400':
+          description: Bad Request. Invalid email (e.g. `notvalid.com`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+  /auth/password-recovery:
+    post:
+      tags:
+        - Auth
+      summary: Sends email for password recovery
+      operationId: password-recovery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordRecoveryInput'
+      responses:
+        '204':
+          description: No Content. Password recovery email has been sent
+        '400':
+          description: Bad Request. Invalid email (e.g. `notvalid.com`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+  /auth/new-password:
+    post:
+      tags:
+        - Auth
+      summary: Creates new password
+      operationId: new-password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPasswordInput'
+      responses:
+        '204':
+          description: No Content. Password has been successfully reset
+        '400':
+          description: Bad Request. Invalid password. Invalid or expired recovery code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+  /auth/resend-password-recovery:
+    post:
+      tags:
+        - Auth
+      summary: Resends email for password recovery
+      operationId: resend-confirmation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendPasswordRecoveryInput'
+      responses:
+        '204':
+          description: Confirmation email has been sent
+        '400':
+          description: Invalid email (e.g. `notvalid.com`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logs out the user
+      operationId: logout
+      parameters:
+        - $ref: '#/components/parameters/RefreshTokenCookie'
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Not Authorized. Invalid or expired refresh token inside cookie
+components:
+  schemas:
+    LoginInput:
+      name: LoginInput
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          pattern: '^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+).([a-zA-Z]{2,5})$'
+        password:
+          type: string
+          minimum: 6
+          maximum: 20
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          format: jwt
+    RegistrationInput:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          pattern: '^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+).([a-zA-Z]{2,5})$'
+        password:
+          type: string
+          minimum: 6
+          maximum: 20
+    ConfirmRegistrationInput:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          format: uuid
+    ResendConfirmationInput:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          pattern: '^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+).([a-zA-Z]{2,5})$'
+    PasswordRecoveryInput:
+      type: object
+      required:
+        - email
+      properties:
+        emai:
+          type: string
+          format: email
+          pattern: '^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+).([a-zA-Z]{2,5})$'
+    NewPasswordInput:
+      type: object
+      required:
+        - recoveryCode
+        - newPassword
+      properties:
+        recoveryCode:
+          type: string
+          format: jwt
+        newPassword:
+          type: string
+          minimum: 6
+          maximum: 20
+    ResendPasswordRecoveryInput:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          pattern: '^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+).([a-zA-Z]{2,5})$'
+    RefreshTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          format: jwt
+    ErrorResult:
+      type: object
+      properties:
+        errorsMessages:
+          type: array
+          nullable: true
+          name: FieldError[]
+          items:
+            $ref: '#/components/schemas/FieldError'
+    FieldError:
+      type: object
+      properties:
+        message:
+          type: string
+          nullable: true
+          description: Message with error explanation for certain field
+        field:
+          type: string
+          nullable: true
+          description: What field/property of input model has error
+  parameters:
+    RefreshTokenCookie:
+      name: refreshToken
+      in: cookie
+      schema:
+        type: string
+        format: jwt
+      required: true
+      description: refresh token cookie
