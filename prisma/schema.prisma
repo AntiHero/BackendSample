@@ -9,3 +9,49 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id                       String                    @id @default(uuid())
+  email                    String                    @unique
+  password                 String
+  passwordRecovery         PasswordRecovery?
+  registrationConfirmation RegistrationConfirmation?
+  tokens                   AuthToken?
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+
+  @@map("users")
+}
+
+model PasswordRecovery {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  code      String?
+  exp       DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("password_recovery")
+}
+
+model RegistrationConfirmation {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  code      String?
+  exp       DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("regisitration_confirmation")
+}
+
+model AuthToken {
+  accessToken  String
+  refreshToken String
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String @unique
+
+  @@map("auth_tokens")
+}
