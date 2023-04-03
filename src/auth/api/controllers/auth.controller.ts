@@ -1,5 +1,5 @@
 import { Controller, Post } from '@nestjs/common';
-import { API } from 'src/@common/constants';
+import { API } from 'src/@shared/constants';
 
 @Controller(API.AUTH)
 export class AuthController {
