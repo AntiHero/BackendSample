@@ -1,0 +1,5 @@
+securitySchemes:
+  refreshToken:
+    type: apiKey
+    name: refreshToken
+    in: cookie
