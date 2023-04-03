@@ -10,5 +10,7 @@ jobs:
 
     steps:
       - name: Send GET request to Render
+        env:
+          RENDER_REDEPLOY_URL: ${{ secrets.RENDER_DEPLOY_URL }}
         run: |
-          curl -X GET ${{ secrets.RENDER_DEPLOY_URL }}
+          curl -X GET $RENDER_REDEPLOY_URL
