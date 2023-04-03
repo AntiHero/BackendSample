@@ -84,8 +84,8 @@ paths:
         - Auth
       summary: Generates new pair of access and refresh token
       operationId: refresh-token
-      parameters:
-        - $ref: '#/components/parameters/RefreshTokenCookie'
+      security:
+        - refreshToken: []
       responses:
         '200':
           description: Returns JWT acces token in body and refreshToken in cookie
@@ -163,35 +163,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResult'
-  /auth/resend-password-recovery:
-    post:
-      tags:
-        - Auth
-      summary: Resends email for password recovery
-      operationId: resend-confirmation
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResendPasswordRecoveryInput'
-      responses:
-        '204':
-          description: Confirmation email has been sent
-        '400':
-          description: Invalid email (e.g. `notvalid.com`)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
   /auth/logout:
     post:
       tags:
         - Auth
       summary: Logs out the user
       operationId: logout
-      parameters:
-        - $ref: '#/components/parameters/RefreshTokenCookie'
+      security:
+        - refreshToken: []
       responses:
         '204':
           description: No Content
@@ -273,15 +252,6 @@ components:
           type: string
           minimum: 6
           maximum: 20
-    ResendPasswordRecoveryInput:
-      type: object
-      required:
-        - email
-      properties:
-        email:
-          type: string
-          format: email
-          pattern: '^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+).([a-zA-Z]{2,5})$'
     RefreshTokenResponse:
       type: object
       properties:
@@ -308,12 +278,6 @@ components:
           type: string
           nullable: true
           description: What field/property of input model has error
-  parameters:
-    RefreshTokenCookie:
-      name: refreshToken
-      in: cookie
-      schema:
-        type: string
-        format: jwt
-      required: true
-      description: refresh token cookie
+  securitySchemes:
+    refreshToken:
+      $ref: 'swagger.security-schemes.yaml#/securitySchemes/refreshToken'
