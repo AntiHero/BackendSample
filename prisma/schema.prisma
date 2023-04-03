@@ -19,6 +19,8 @@ model User {
   tokens                   AuthToken?
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @updatedAt
+
+  @@map("users")
 }
 
 model PasswordRecovery {
@@ -29,6 +31,8 @@ model PasswordRecovery {
   exp       DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("password_recovery")
 }
 
 model RegistrationConfirmation {
@@ -39,6 +43,8 @@ model RegistrationConfirmation {
   exp       DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("regisitration_confirmation")
 }
 
 model AuthToken {
@@ -46,4 +52,6 @@ model AuthToken {
   refreshToken String
   user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String @unique
+
+  @@map("auth_tokens")
 }
