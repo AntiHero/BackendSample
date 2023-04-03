@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 
 import { configValidationSchema } from './config/config.validation-schema';
 import { AppController } from './app.controller';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { AppController } from './app.controller';
       isGlobal: true,
       validationSchema: configValidationSchema,
     }),
+    AuthModule,
   ],
   controllers: [AppController],
 })
