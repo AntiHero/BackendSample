@@ -1,8 +1,6 @@
 export const API = {
   ROOT: '/api',
-  /*
-   * AUTH
-   */
+  /* AUTH */
   AUTH: 'api/auth',
   LOGIN: 'login',
   LOGOUT: 'logout',
@@ -13,3 +11,6 @@ export const API = {
   CONFIRM_REGISTRATION: 'confirm-registration',
   RESEND_REGISTRATION_CONFIRMATION: 'resend-registration-confirmation',
 };
+
+export const USERS_REPOSITORY_TOKEN = 'USERS_REPOSITORY_TOKEN';
+export const USERS_QUERY_REPOSITORY_TOKEN = 'USERS_QUERY_REPOSITORY_TOKEN';

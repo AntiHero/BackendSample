@@ -1,11 +1,40 @@
-import { Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+} from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+
+import { LoginUserCommand } from 'src/auth/app/commands/login-user/login-user.command';
+import { LoginDto } from 'src/auth/api/dtos/login.dto';
 import { API } from 'src/@shared/constants';
+import { Response } from 'express';
 
 @Controller(API.AUTH)
 export class AuthController {
+  public constructor(private readonly commandBus: CommandBus) {}
+
+  @HttpCode(HttpStatus.OK)
   @Post(API.LOGIN)
-  public async login() {
-    return null;
+  public async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { email, password } = loginDto;
+    const [accessToken, refreshToken] = await this.commandBus.execute(
+      new LoginUserCommand(email, password),
+    );
+
+    response.cookie('refreshToken', refreshToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: true,
+    });
+
+    response.status(200).json({ accessToken });
   }
 
   @Post(API.REGISTRATION)
