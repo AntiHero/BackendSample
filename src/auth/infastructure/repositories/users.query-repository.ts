@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User, RegistrationConfirmation } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
@@ -8,7 +8,7 @@ import { QueryRepository } from './query-repository';
 @Injectable()
 export class UsersQueryRepository extends QueryRepository<
   UserDto,
-  User | null
+  (User & Partial<RegistrationConfirmation>) | null
 > {
   public constructor(private readonly prismaService: PrismaService) {
     super();
@@ -18,9 +18,9 @@ export class UsersQueryRepository extends QueryRepository<
       const user = await this.prismaService.user.findFirst({
         where: {
           email,
-          registrationConfirmation: {
-            isConfirmed: false,
-          },
+        },
+        include: {
+          registrationConfirmation: { select: { isConfirmed: true } },
         },
       });
 

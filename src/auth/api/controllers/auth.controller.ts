@@ -1,3 +1,5 @@
+import { CommandBus } from '@nestjs/cqrs';
+import { Response } from 'express';
 import {
   Body,
   Controller,
@@ -6,12 +8,12 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
 
+import { RegisterUserCommand } from 'src/auth/app/commands/register-user/register-user.command';
 import { LoginUserCommand } from 'src/auth/app/commands/login-user/login-user.command';
+import { RegistrationDto } from 'src/auth/api/dtos/registration.dto';
 import { LoginDto } from 'src/auth/api/dtos/login.dto';
 import { API } from 'src/@shared/constants';
-import { Response } from 'express';
 
 @Controller(API.AUTH)
 export class AuthController {
@@ -38,8 +40,10 @@ export class AuthController {
   }
 
   @Post(API.REGISTRATION)
-  public async registration() {
-    return null;
+  public async registration(@Body() registrationDto: RegistrationDto) {
+    const { email, password } = registrationDto;
+
+    return this.commandBus.execute(new RegisterUserCommand(email, password));
   }
 
   @Post(API.CONFIRM_REGISTRATION)
