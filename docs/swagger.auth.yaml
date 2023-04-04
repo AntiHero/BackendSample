@@ -48,7 +48,7 @@ paths:
               $ref: '#/components/schemas/RegistrationInput'
       responses:
         '204':
-          description: Success. Registration accepted. An email with a confirmation code has been sent to the user's email
+          description: No Content. Registration accepted. An email with a confirmation code has been sent to the user's email
         '400':
           description: Bad Request. Invalid input
           content:

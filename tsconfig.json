@@ -8,8 +8,8 @@
     "allowSyntheticDefaultImports": true,
     "target": "es2017",
     "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
+    "outDir": "dist",
+    "baseUrl": ".",
     "strict": true,
     "incremental": true,
     "skipLibCheck": true,
@@ -18,7 +18,8 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "speccy/lib/loader": ["src/common/@types/speccy-loader.d.ts"]
+      "speccy/lib/loader": ["src/@shared/@types/speccy-loader.d.ts"]
     }
-  }
+  },
+  "exclude": ["./dist"]
 }
