@@ -62,7 +62,6 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
       this.signToken(user.id, this.jwtConfiguration.accessTokenTtl, {
         email,
       }),
-      ,
       this.signToken(user.id, this.jwtConfiguration.refreshTokenTtl, {
         email,
       }),
