@@ -6,17 +6,16 @@ import {
 } from '@nestjs/common';
 
 import { QueryRepository } from 'src/auth/infastructure/repositories/query-repository';
+import { Repository } from 'src/auth/infastructure/repositories/repository';
 import { EmailService } from 'src/email-manager/email-manager.service';
 import { HashingService } from 'src/auth/app/services/hashing.service';
 import { RegisterUserCommand } from './register-user.command';
 import { type UserWithRelativeInfo } from 'src/@shared/@types';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
-import { Repository } from 'src/@shared/repository';
 import {
   USERS_QUERY_REPOSITORY_TOKEN,
   USERS_REPOSITORY_TOKEN,
 } from 'src/@shared/constants';
-import { Prisma } from '@prisma/client';
 
 @CommandHandler(RegisterUserCommand)
 export class RegisterUserHandler
