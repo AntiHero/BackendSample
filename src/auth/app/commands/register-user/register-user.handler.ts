@@ -41,33 +41,27 @@ export class RegisterUserHandler
     try {
       const { email, password } = command;
 
-      const user = await this.usersQueryRepository.findByEmail(email);
+      let user = await this.usersQueryRepository.findByEmail(email);
 
       if (user?.registrationConfirmation?.isConfirmed) {
         throw new ConflictException('Email address is already registered');
       }
 
-      let newUser: UserWithRelativeInfo | null = null;
+      const hashedPassword = await this.hashingService.hash(password);
 
-      if (!user) {
-        const hashedPassword = await this.hashingService.hash(password);
+      user = await this.usersRepository.create({
+        email,
+        password: hashedPassword,
+      });
 
-        newUser = await this.usersRepository.create({
-          email,
-          password: hashedPassword,
-        });
-      }
-
-      const confirmationCode =
-        user?.registrationConfirmation?.code ??
-        newUser?.registrationConfirmation?.code;
+      const confirmationCode = user?.registrationConfirmation?.code;
 
       await this.emailService.sendRegistrationConfirmation(
         email,
         <string>confirmationCode,
       );
 
-      return user ?? newUser;
+      return user;
     } catch (error) {
       console.log(error);
 
