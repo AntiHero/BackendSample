@@ -14,6 +14,8 @@ import { LoginUserCommand } from 'src/auth/app/commands/login-user/login-user.co
 import { RegistrationDto } from 'src/auth/api/dtos/registration.dto';
 import { LoginDto } from 'src/auth/api/dtos/login.dto';
 import { API } from 'src/@shared/constants';
+import { ConfirmRegistrationCommand } from 'src/auth/app/commands/confirm-registration/confirm-registration.command';
+import { CodeDto } from '../dtos/code.dto';
 
 @Controller(API.AUTH)
 export class AuthController {
@@ -47,8 +49,10 @@ export class AuthController {
   }
 
   @Post(API.CONFIRM_REGISTRATION)
-  public async confirmRegistration() {
-    return null;
+  public async confirmRegistration(@Body() confirmRegistrationDto: CodeDto) {
+    const { code } = confirmRegistrationDto;
+
+    return this.commandBus.execute(new ConfirmRegistrationCommand(code));
   }
 
   @Post(API.REFRESH_TOKEN)

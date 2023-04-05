@@ -5,9 +5,12 @@ import { QueryRepository } from 'src/auth/infastructure/repositories/query-repos
 import { InvalidCodeException } from 'src/@shared/exceptions/invalid-code.exception';
 import { ConfirmRegistrationCommand } from './confirm-registration.command';
 import { Repository } from 'src/auth/infastructure/repositories/repository';
-import { USERS_QUERY_REPOSITORY_TOKEN } from 'src/@shared/constants';
 import { UserWithRelativeInfo } from 'src/@shared/@types';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
+import {
+  USERS_QUERY_REPOSITORY_TOKEN,
+  USERS_REPOSITORY_TOKEN,
+} from 'src/@shared/constants';
 
 @CommandHandler(ConfirmRegistrationCommand)
 export class ConfirmRegistrationHandler implements ICommandHandler {
@@ -17,6 +20,7 @@ export class ConfirmRegistrationHandler implements ICommandHandler {
       UserDto,
       UserWithRelativeInfo | null
     >,
+    @Inject(USERS_REPOSITORY_TOKEN)
     private readonly usersRepository: Repository<
       UserDto,
       UserWithRelativeInfo | null

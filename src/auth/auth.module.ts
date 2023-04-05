@@ -3,6 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
+import { ConfirmRegistrationHandler } from './app/commands/confirm-registration/confirmat-registration.handler';
 import { UsersQueryRepository } from './infastructure/repositories/users.query-repository';
 import { RegisterUserHandler } from './app/commands/register-user/register-user.handler';
 import { LoginUserHandler } from './app/commands/login-user/login-user.handler';
@@ -31,6 +32,7 @@ import {
     { provide: USERS_REPOSITORY_TOKEN, useClass: UsersRepository },
     LoginUserHandler,
     RegisterUserHandler,
+    ConfirmRegistrationHandler,
   ],
 })
 export class AuthModule {}
