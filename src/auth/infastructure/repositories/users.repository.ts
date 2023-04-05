@@ -18,8 +18,18 @@ export class UsersRepository extends Repository<
   public async create(userDto: UserDto): Promise<UserWithRelativeInfo | null> {
     const { email, password } = userDto;
     try {
-      return this.prismaService.user.create({
-        data: {
+      return this.prismaService.user.upsert({
+        where: { email },
+        update: {
+          password,
+          registrationConfirmation: {
+            update: {
+              code: randomUUID(),
+              exp: new Date(Date.now() + 600_000),
+            },
+          },
+        },
+        create: {
           email,
           password,
           registrationConfirmation: {
