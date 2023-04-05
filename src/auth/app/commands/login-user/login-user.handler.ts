@@ -5,8 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 
 import { QueryRepository } from 'src/auth/infastructure/repositories/query-repository';
-import { USERS_QUERY_REPOSITORY_TOKEN } from 'src/@shared/constants';
 import { HashingService } from 'src/auth/app/services/hashing.service';
+import { USERS_QUERY_REPOSITORY_TOKEN } from 'src/@shared/constants';
 import { LoginUserCommand } from './login-user.command';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
 import { jwtConfig } from 'src/config/jwt.config';
