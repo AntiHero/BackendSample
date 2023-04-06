@@ -1,25 +1,41 @@
 import { CommandBus } from '@nestjs/cqrs';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import {
   Body,
   Controller,
   HttpCode,
   HttpStatus,
+  Inject,
   Post,
+  Req,
   Res,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 
-import { RegisterUserCommand } from 'src/auth/app/commands/register-user/register-user.command';
-import { LoginUserCommand } from 'src/auth/app/commands/login-user/login-user.command';
-import { RegistrationDto } from 'src/auth/api/dtos/registration.dto';
-import { LoginDto } from 'src/auth/api/dtos/login.dto';
-import { API } from 'src/@shared/constants';
 import { ConfirmRegistrationCommand } from 'src/auth/app/commands/confirm-registration/confirm-registration.command';
-import { CodeDto } from '../dtos/code.dto';
+import { UseresQueryRepositoryAdapter } from 'src/@shared/adapters/users.query-repository-adapter';
+import { RegisterUserCommand } from 'src/auth/app/commands/register-user/register-user.command';
+import { RefreshTokenCommand } from 'src/auth/app/commands/refresh-token/refresh-token.command';
+import { LoginUserCommand } from 'src/auth/app/commands/login-user/login-user.command';
+import { JwtCookieGuard } from 'src/auth/@common/guards/jwt-cookie.guard';
+import { RegistrationDto } from 'src/auth/api/dtos/registration.dto';
+import { UserWithRelativeInfo } from 'src/@shared/types';
+import { LoginDto } from 'src/auth/api/dtos/login.dto';
+import { CodeDto } from 'src/auth/api/dtos/code.dto';
+import { UserDto } from 'src/auth/app/dtos/user.dto';
+import { API } from 'src/@shared/constants';
 
 @Controller(API.AUTH)
 export class AuthController {
-  public constructor(private readonly commandBus: CommandBus) {}
+  public constructor(
+    private readonly commandBus: CommandBus,
+    // @Inject(USERS_QUERY_REPOSITORY_TOKEN)
+    private readonly usersQueryRepository: UseresQueryRepositoryAdapter<
+      UserDto,
+      UserWithRelativeInfo | null
+    >,
+  ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post(API.LOGIN)
@@ -55,9 +71,39 @@ export class AuthController {
     return this.commandBus.execute(new ConfirmRegistrationCommand(code));
   }
 
+  /**
+   *  1. validate refreshToken in cookie [x]
+   *  2. find user by userId in db [x]
+   *  3. create new pair of access token and refhres-token [x]
+   *  4. update tokens table with valid tokens for issuer
+   */
+  @UseGuards(JwtCookieGuard)
   @Post(API.REFRESH_TOKEN)
-  public async refreshToken() {
-    return null;
+  public async refreshToken(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    if (!request.user) throw new UnauthorizedException();
+
+    const { userId } = request.user;
+
+    if (!userId) throw new UnauthorizedException();
+
+    const user = await this.usersQueryRepository.findById(userId);
+
+    if (!user) throw new UnauthorizedException();
+
+    const [accessToken, refreshToken] = await this.commandBus.execute(
+      new RefreshTokenCommand(user.id, user.email),
+    );
+
+    response.cookie('refreshToken', refreshToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: true,
+    });
+
+    response.status(200).json({ accessToken });
   }
 
   @Post(API.RESEND_REGISTRATION_CONFIRMATION)

@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 
-import { Repository } from 'src/auth/infastructure/repositories/repository';
-import { UserWithRelativeInfo } from 'src/@shared/@types';
+import { UsersRepositoryAdapter } from 'src/@shared/adapters/users.repository-adapter';
+import { UserWithRelativeInfo } from 'src/@shared/types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
 
 @Injectable()
-export class UsersRepository extends Repository<
+export class UsersRepository extends UsersRepositoryAdapter<
   UserDto,
   UserWithRelativeInfo | null
 > {
