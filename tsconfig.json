@@ -18,8 +18,9 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "speccy/lib/loader": ["src/@shared/@types/speccy-loader.d.ts"]
+      "speccy/lib/loader": ["src/@shared/types/speccy-loader.d.ts"]
     }
   },
+  "include": ["src/**/*", "src/@shared/index.d.ts"],
   "exclude": ["./dist"]
 }

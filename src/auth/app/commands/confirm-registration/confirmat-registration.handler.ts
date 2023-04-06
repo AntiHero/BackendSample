@@ -1,23 +1,20 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject } from '@nestjs/common';
 
-import { QueryRepository } from 'src/auth/infastructure/repositories/query-repository';
+import { UseresQueryRepositoryAdapter } from 'src/@shared/adapters/users.query-repository-adapter';
+import { UsersRepositoryAdapter } from 'src/@shared/adapters/users.repository-adapter';
 import { InvalidCodeException } from 'src/@shared/exceptions/invalid-code.exception';
 import { ConfirmRegistrationCommand } from './confirm-registration.command';
-import { Repository } from 'src/auth/infastructure/repositories/repository';
-import { USERS_QUERY_REPOSITORY_TOKEN } from 'src/@shared/constants';
-import { UserWithRelativeInfo } from 'src/@shared/@types';
+import { UserWithRelativeInfo } from 'src/@shared/types';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
 
 @CommandHandler(ConfirmRegistrationCommand)
 export class ConfirmRegistrationHandler implements ICommandHandler {
   public constructor(
-    @Inject(USERS_QUERY_REPOSITORY_TOKEN)
-    private readonly usersQueryRepository: QueryRepository<
+    private readonly usersQueryRepository: UseresQueryRepositoryAdapter<
       UserDto,
       UserWithRelativeInfo | null
     >,
-    private readonly usersRepository: Repository<
+    private readonly usersRepository: UsersRepositoryAdapter<
       UserDto,
       UserWithRelativeInfo | null
     >,

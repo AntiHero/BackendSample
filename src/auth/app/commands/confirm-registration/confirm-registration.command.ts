@@ -1,7 +1,8 @@
-import { IsUUID, validateSync } from 'class-validator';
+import { IsNotEmpty, IsString, validateSync } from 'class-validator';
 
 export class ConfirmRegistrationCommand {
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   public readonly code: string;
 
   public constructor(code: string) {
