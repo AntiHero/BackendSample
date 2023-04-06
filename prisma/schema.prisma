@@ -49,6 +49,7 @@ model RegistrationConfirmation {
 }
 
 model AuthToken {
+  id           String @id @default(uuid())
   accessToken  String
   refreshToken String
   user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)

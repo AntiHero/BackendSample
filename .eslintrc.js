@@ -15,6 +15,6 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', 'src/**/*.d.ts'],
   rules: {},
 };

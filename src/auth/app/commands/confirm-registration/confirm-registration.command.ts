@@ -9,7 +9,6 @@ export class ConfirmRegistrationCommand {
     this.code = code;
 
     const errors = validateSync(this);
-    console.log(errors);
 
     if (errors.length > 0) {
       throw new Error('Wrong command data');

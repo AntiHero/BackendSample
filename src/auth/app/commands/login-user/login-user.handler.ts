@@ -1,44 +1,23 @@
-import { Inject, UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
+import { UnauthorizedException } from '@nestjs/common';
 
-import { QueryRepository } from 'src/auth/infastructure/repositories/query-repository';
+import { UseresQueryRepositoryAdapter } from 'src/@shared/adapters/users.query-repository-adapter';
 import { HashingService } from 'src/auth/app/services/hashing.service';
-import { USERS_QUERY_REPOSITORY_TOKEN } from 'src/@shared/constants';
+import { TokensService } from 'src/auth/app/services/tokens.service';
+import { UserWithRelativeInfo } from 'src/@shared/types';
 import { LoginUserCommand } from './login-user.command';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
-import { jwtConfig } from 'src/config/jwt.config';
 
 @CommandHandler(LoginUserCommand)
 export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   public constructor(
-    @Inject(USERS_QUERY_REPOSITORY_TOKEN)
-    private readonly usersQueryRepository: QueryRepository<
+    private readonly usersQueryRepository: UseresQueryRepositoryAdapter<
       UserDto,
-      User | null
+      UserWithRelativeInfo | null
     >,
     private readonly hashingService: HashingService,
-    private readonly jwtService: JwtService,
-    @Inject(jwtConfig.KEY)
-    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly tokensService: TokensService,
   ) {}
-
-  private async signToken<T>(id: string, expiresIn: number, payload?: T) {
-    return this.jwtService.signAsync(
-      {
-        sub: id,
-        ...payload,
-      },
-      {
-        audience: this.jwtConfiguration.audience,
-        issuer: this.jwtConfiguration.issuer,
-        secret: this.jwtConfiguration.secret,
-        expiresIn,
-      },
-    );
-  }
 
   public async execute(command: LoginUserCommand) {
     const { email, password } = command;
@@ -58,14 +37,10 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
       throw new UnauthorizedException('User does not exist');
     }
 
-    const [accessToken, refreshToken] = await Promise.all([
-      this.signToken(user.id, this.jwtConfiguration.accessTokenTtl, {
+    const [accessToken, refreshToken] =
+      await this.tokensService.generateAcessAndRefreshTokens(user.id, {
         email,
-      }),
-      this.signToken(user.id, this.jwtConfiguration.refreshTokenTtl, {
-        email,
-      }),
-    ]);
+      });
 
     return [accessToken, refreshToken];
   }

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
+import { UseresQueryRepositoryAdapter } from 'src/@shared/adapters/users.query-repository-adapter';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserWithRelativeInfo } from 'src/@shared/@types';
+import { UserWithRelativeInfo } from 'src/@shared/types';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
-import { QueryRepository } from './query-repository';
 
 @Injectable()
-export class UsersQueryRepository extends QueryRepository<
+export class UsersQueryRepository extends UseresQueryRepositoryAdapter<
   UserDto,
   UserWithRelativeInfo | null
 > {
@@ -51,6 +51,21 @@ export class UsersQueryRepository extends QueryRepository<
               },
             },
           ],
+        },
+      });
+    } catch (error) {
+      console.log(error);
+
+      // TODO: throw DB error
+      throw error;
+    }
+  }
+
+  public async findById(id: string): Promise<UserWithRelativeInfo | null> {
+    try {
+      return this.prismaService.user.findFirst({
+        where: {
+          id,
         },
       });
     } catch (error) {
