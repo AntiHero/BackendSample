@@ -29,11 +29,10 @@ export class JwtCookieGuard extends AuthGuard(JWT_COOKIE_STRATEGY) {
   }
 
   public handleRequest<Err, U>(err: Err, user: U) {
-    console.log('called');
     if (err || !user) {
       throw new UnauthorizedException();
     }
 
-    return user;
+    return { ...user, bla: 1 };
   }
 }

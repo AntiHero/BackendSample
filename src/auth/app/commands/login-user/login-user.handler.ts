@@ -42,6 +42,8 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
         email,
       });
 
+    await this.tokensService.saveTokens(user.id, { accessToken, refreshToken });
+
     return [accessToken, refreshToken];
   }
 }

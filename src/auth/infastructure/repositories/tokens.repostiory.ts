@@ -40,8 +40,13 @@ export class TokensQueryRepository extends TokensQueryRepositoryAdapter {
   ): Promise<void | null> {
     const { accessToken, refreshToken } = tokens;
     try {
-      await this.prismaService.authToken.create({
-        data: {
+      await this.prismaService.authToken.upsert({
+        where: { userId },
+        update: {
+          accessToken,
+          refreshToken,
+        },
+        create: {
           userId,
           accessToken,
           refreshToken,
