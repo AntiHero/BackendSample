@@ -5,31 +5,24 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 
-import { QueryRepository } from 'src/auth/infastructure/repositories/query-repository';
+import { UseresQueryRepositoryAdapter } from 'src/@shared/adapters/users.query-repository-adapter';
+import { UsersRepositoryAdapter } from 'src/@shared/adapters/users.repository-adapter';
 import { EmailService } from 'src/email-manager/email-manager.service';
 import { HashingService } from 'src/auth/app/services/hashing.service';
 import { RegisterUserCommand } from './register-user.command';
-import { type UserWithRelativeInfo } from 'src/@shared/@types';
+import { type UserWithRelativeInfo } from 'src/@shared/types';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
-import { Repository } from 'src/@shared/repository';
-import {
-  USERS_QUERY_REPOSITORY_TOKEN,
-  USERS_REPOSITORY_TOKEN,
-} from 'src/@shared/constants';
-import { Prisma } from '@prisma/client';
 
 @CommandHandler(RegisterUserCommand)
 export class RegisterUserHandler
   implements ICommandHandler<RegisterUserCommand>
 {
   constructor(
-    @Inject(USERS_QUERY_REPOSITORY_TOKEN)
-    private readonly usersQueryRepository: QueryRepository<
+    private readonly usersQueryRepository: UseresQueryRepositoryAdapter<
       UserDto,
       UserWithRelativeInfo | null
     >,
-    @Inject(USERS_REPOSITORY_TOKEN)
-    private readonly usersRepository: Repository<
+    private readonly usersRepository: UsersRepositoryAdapter<
       UserDto,
       UserWithRelativeInfo | null
     >,
@@ -41,33 +34,27 @@ export class RegisterUserHandler
     try {
       const { email, password } = command;
 
-      const user = await this.usersQueryRepository.findByEmail(email);
+      let user = await this.usersQueryRepository.findByEmail(email);
 
       if (user?.registrationConfirmation?.isConfirmed) {
         throw new ConflictException('Email address is already registered');
       }
 
-      let newUser: UserWithRelativeInfo | null = null;
+      const hashedPassword = await this.hashingService.hash(password);
 
-      if (!user) {
-        const hashedPassword = await this.hashingService.hash(password);
+      user = await this.usersRepository.create({
+        email,
+        password: hashedPassword,
+      });
 
-        newUser = await this.usersRepository.create({
-          email,
-          password: hashedPassword,
-        });
-      }
-
-      const confirmationCode =
-        user?.registrationConfirmation?.code ??
-        newUser?.registrationConfirmation?.code;
+      const confirmationCode = user?.registrationConfirmation?.code;
 
       await this.emailService.sendRegistrationConfirmation(
         email,
         <string>confirmationCode,
       );
 
-      return user ?? newUser;
+      return user;
     } catch (error) {
       console.log(error);
 

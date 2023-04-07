@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 
-import { UserWithRelativeInfo } from 'src/@shared/@types';
+import { UsersRepositoryAdapter } from 'src/@shared/adapters/users.repository-adapter';
+import { UserWithRelativeInfo } from 'src/@shared/types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
-import { Repository } from 'src/@shared/repository';
 
 @Injectable()
-export class UsersRepository extends Repository<
+export class UsersRepository extends UsersRepositoryAdapter<
   UserDto,
   UserWithRelativeInfo | null
 > {
@@ -18,8 +18,18 @@ export class UsersRepository extends Repository<
   public async create(userDto: UserDto): Promise<UserWithRelativeInfo | null> {
     const { email, password } = userDto;
     try {
-      return this.prismaService.user.create({
-        data: {
+      return this.prismaService.user.upsert({
+        where: { email },
+        update: {
+          password,
+          registrationConfirmation: {
+            update: {
+              code: randomUUID(),
+              exp: new Date(Date.now() + 600_000),
+            },
+          },
+        },
+        create: {
           email,
           password,
           registrationConfirmation: {
@@ -34,6 +44,29 @@ export class UsersRepository extends Repository<
         },
         include: {
           registrationConfirmation: { select: { isConfirmed: true } },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+
+      return null;
+    }
+  }
+
+  public async register(id: string): Promise<void | null> {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id,
+        },
+        data: {
+          registrationConfirmation: {
+            update: {
+              isConfirmed: true,
+              code: null,
+              exp: null,
+            },
+          },
         },
       });
     } catch (error) {
