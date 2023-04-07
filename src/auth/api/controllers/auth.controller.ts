@@ -5,7 +5,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Inject,
   Post,
   Req,
   Res,
@@ -25,6 +24,7 @@ import { LoginDto } from 'src/auth/api/dtos/login.dto';
 import { CodeDto } from 'src/auth/api/dtos/code.dto';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
 import { API } from 'src/@shared/constants';
+import 'src/global';
 
 @Controller(API.AUTH)
 export class AuthController {

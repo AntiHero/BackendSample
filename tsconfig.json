@@ -21,6 +21,6 @@
       "speccy/lib/loader": ["src/@shared/types/speccy-loader.d.ts"]
     }
   },
-  "include": ["src/**/*", "src/@shared/index.d.ts"],
-  "exclude": ["./dist"]
+  "include": ["src/**/*"],
+  "exclude": ["dist", "test/**/*.ts"]
 }
