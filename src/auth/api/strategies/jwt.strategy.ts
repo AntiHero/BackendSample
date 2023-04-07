@@ -29,7 +29,6 @@ export class JwtCookieStrategy extends PassportStrategy(
   }
 
   public async validate<T extends TokenPayload & { sub: string }>(payload: T) {
-    console.log(payload);
     return { userId: payload.sub, email: payload.email };
   }
 }

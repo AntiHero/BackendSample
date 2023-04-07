@@ -1,8 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { TokensQueryRepositoryAdapter } from 'src/@shared/adapters/tokens.query-repository-adapter';
 
 import { type TokenPayload } from 'src/auth/types/token.payload';
+import { TokensPair } from 'src/auth/types/tokens-pair';
 import { jwtConfig } from 'src/config/jwt.config';
 
 @Injectable()
@@ -11,6 +13,7 @@ export class TokensService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly tokensQueryRepository: TokensQueryRepositoryAdapter,
   ) {}
 
   public async signToken<T extends TokenPayload>(
@@ -48,5 +51,9 @@ export class TokensService {
     ]);
 
     return [accessToken, refreshToken];
+  }
+
+  public async saveTokens(id: string, tokens: TokensPair) {
+    return this.tokensQueryRepository.saveTokens(id, tokens);
   }
 }

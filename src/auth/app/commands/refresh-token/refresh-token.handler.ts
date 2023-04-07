@@ -15,6 +15,8 @@ export class RefreshTokenHandler implements ICommandHandler {
     const [accessToken, refreshToken] =
       await this.tokensService.generateAcessAndRefreshTokens(userId, { email });
 
+    await this.tokensService.saveTokens(userId, { accessToken, refreshToken });
+
     return [accessToken, refreshToken];
   }
 }
