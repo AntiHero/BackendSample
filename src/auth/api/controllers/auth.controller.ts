@@ -1,3 +1,4 @@
+/// <reference path="../../../global.d.ts" />
 import { CommandBus } from '@nestjs/cqrs';
 import { Request, Response } from 'express';
 import {
@@ -24,7 +25,6 @@ import { LoginDto } from 'src/auth/api/dtos/login.dto';
 import { CodeDto } from 'src/auth/api/dtos/code.dto';
 import { UserDto } from 'src/auth/app/dtos/user.dto';
 import { API } from 'src/@shared/constants';
-import 'src/global';
 
 @Controller(API.AUTH)
 export class AuthController {
