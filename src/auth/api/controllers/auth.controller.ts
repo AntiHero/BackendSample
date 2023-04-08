@@ -30,7 +30,6 @@ import 'src/global';
 export class AuthController {
   public constructor(
     private readonly commandBus: CommandBus,
-    // @Inject(USERS_QUERY_REPOSITORY_TOKEN)
     private readonly usersQueryRepository: UseresQueryRepositoryAdapter<
       UserDto,
       UserWithRelativeInfo | null
