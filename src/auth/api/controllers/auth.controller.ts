@@ -1,3 +1,4 @@
+/// <reference path="../../../global.d.ts" />
 import { CommandBus } from '@nestjs/cqrs';
 import { Request, Response } from 'express';
 import {
@@ -5,7 +6,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Inject,
   Post,
   Req,
   Res,
@@ -30,7 +30,6 @@ import { API } from 'src/@shared/constants';
 export class AuthController {
   public constructor(
     private readonly commandBus: CommandBus,
-    // @Inject(USERS_QUERY_REPOSITORY_TOKEN)
     private readonly usersQueryRepository: UseresQueryRepositoryAdapter<
       UserDto,
       UserWithRelativeInfo | null
