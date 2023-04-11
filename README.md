@@ -1,3 +1,5 @@
+![Deploy](https://github.com/AntiHero/BackendSample/actions/workflows/deploy.yml/badge.svg)
+
 ## Installation
 
 ```bash
